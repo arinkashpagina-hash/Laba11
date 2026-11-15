@@ -1,0 +1,187 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <time.h>
+#include <locale.h>
+
+struct point {
+    float x;
+    float y;
+    char name;
+};
+
+void show_p(struct point p) {
+    printf("point %c (%.1f, %.1f)\n", p.name, p.x, p.y);
+}
+
+float dist(struct point p1, struct point p2) {
+    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+}
+
+struct point mid(struct point p1, struct point p2) {
+    struct point res;
+    res.x = (p1.x + p2.x) / 2;
+    res.y = (p1.y + p2.y) / 2;
+    res.name = 'M';
+    return res;
+}
+
+void quarter(struct point p) {
+    if (p.x > 0 && p.y > 0) printf("%c в 1 четв.\n", p.name);
+    else if (p.x < 0 && p.y > 0) printf("%c во 2 четв.\n", p.name);
+    else if (p.x < 0 && p.y < 0) printf("%c в 3 четв.\n", p.name);
+    else if (p.x > 0 && p.y < 0) printf("%c в 4 четв.\n", p.name);
+    else printf("%c на оси\n", p.name);
+}
+
+struct date {
+    int day, month, year;
+};
+
+struct emp {
+    char fio[100];
+    char dolzh[50];
+    float zp;
+    struct date dr;
+};
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+
+    
+    struct point A, B;
+    printf("Введи 1 точку (x y name): ");
+    scanf("%f %f %c", &A.x, &A.y, &A.name);
+    printf("Введи 2 точку (x y name): ");
+    scanf("%f %f %c", &B.x, &B.y, &B.name);
+
+    show_p(A);
+    show_p(B);
+    printf("Расстояние: %.2f\n", dist(A, B));
+
+    struct point M = mid(A, B);
+    printf("Середина: ");
+    show_p(M);
+
+    quarter(A);
+    quarter(B);
+
+    printf("\nНажми Enter...");
+    getchar(); getchar();
+
+    
+    printf("\nВремя: ");
+    time_t t = time(NULL);
+    struct tm* now = localtime(&t);
+    printf("%02d:%02d:%02d\n", now->tm_hour, now->tm_min, now->tm_sec);
+
+  
+    char* dn[] = { "Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб" };
+    printf("1. %s\n", dn[now->tm_wday]);
+
+ 
+    printf("2. %02d.%02d.%d\n", now->tm_mday, now->tm_mon + 1, now->tm_year + 1900);
+
+   
+    char* mes[] = { "янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек" };
+    printf("3. %d %s\n", now->tm_mday, mes[now->tm_mon]);
+
+    printf("4. %d день года\n", now->tm_yday + 1);
+
+    int k = 7 - now->tm_wday;
+    if (k == 7) k = 0;
+    printf("5. До вс: %d дн.\n", k);
+
+    int min = now->tm_hour * 60 + now->tm_min;
+    if (min > 540) printf("6. С 1 пары: %d ч %d мин\n", (min - 540) / 60, (min - 540) % 60);
+    else printf("6. Еще не началось\n");
+
+    int d = 365 - (now->tm_yday + 1);
+    printf("7. До НГ: %d мес %d дн\n", d / 30, d % 30);
+
+    int ost = 90 - (min % 90);
+    printf("8. До конца пары: %d мин\n", ost);
+
+    int days[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+    int y = now->tm_year + 1900;
+    if (y % 4 == 0) days[1] = 29;
+    printf("9. До конца мес: %d, до конца года: %d мес\n", days[now->tm_mon] - now->tm_mday, 11 - now->tm_mon);
+
+    char* rim[] = { "I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII" };
+    printf("10. %s %d\n", rim[now->tm_mon], y);
+
+    int m = now->tm_mon + 1;
+    char* sez;
+    if (m == 12 || m == 1 || m == 2) sez = "Зима";
+    else if (m < 6) sez = "Весна";
+    else if (m < 9) sez = "Лето";
+    else sez = "Осень";
+    printf("11. %s %02d\n", sez, y % 100);
+
+    printf("12. Идет %d день %s\n", now->tm_mday, sez);
+
+    printf("\nНажми Enter...");
+    getchar(); getchar();
+
+   
+    printf("\n");
+    char buf[80];
+
+    for (int i = 0; i < 80; i++) printf("*");
+    printf("\n");
+
+    sprintf(buf, "Время: %02d:%02d:%02d", now->tm_hour, now->tm_min, now->tm_sec);
+    int len = strlen(buf);
+    for (int i = 0; i < (80 - len) / 2; i++) printf(" ");
+    printf("%s\n", buf);
+
+   
+    sprintf(buf, "Дата: %02d.%02d.%d", now->tm_mday, now->tm_mon + 1, now->tm_year + 1900);
+    len = strlen(buf);
+    for (int i = 0; i < (80 - len) / 2; i++) printf(" ");
+    printf("%s\n", buf);
+
+    for (int i = 0; i < 80; i++) printf("*");
+    printf("\n");
+
+    printf("\nНажми Enter...");
+    getchar(); getchar();
+
+   
+    struct emp arr[10];
+    int n;
+    printf("\nСколько сотрудников? ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        printf("Введи ФИО, должность, зп и дату (через пробел): ");
+   
+        char f[30], im[30], ot[30];
+        scanf("%s %s %s", f, im, ot);
+        sprintf(arr[i].fio, "%s %s %s", f, im, ot); 
+
+        scanf("%s", arr[i].dolzh);
+        scanf("%f", &arr[i].zp);
+        scanf("%d %d %d", &arr[i].dr.day, &arr[i].dr.month, &arr[i].dr.year);
+    }
+
+    printf("\nСписок:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%s | %s | %.2f | %02d.%02d.%d\n", arr[i].fio, arr[i].dolzh, arr[i].zp, arr[i].dr.day, arr[i].dr.month, arr[i].dr.year);
+    }
+
+    float limit;
+    printf("\nЗП больше чем: ");
+    scanf("%f", &limit);
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i].zp > limit) {
+            printf("%s (%.2f)\n", arr[i].fio, arr[i].zp);
+        }
+    }
+
+    printf("\nКонец. Нажми Enter...");
+    getchar(); getchar();
+    return 0;
+}
